@@ -6,7 +6,7 @@
 /*   By: jaeyjeon <jaeyjeon@student.42seoul.kr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/14 16:46:37 by jaeyjeon          #+#    #+#             */
-/*   Updated: 2023/02/17 18:57:10 by jaeyjeon         ###   ########.fr       */
+/*   Updated: 2023/02/20 18:35:23 by jaeyjeon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,10 +25,15 @@ namespace ft
 		typedef	Alloc			allocator_type; // Alloc를 allocator_type으로 사용
 		typedef std::size_t		size_type;
 
-		typedef typename	allocator_type::reference			reference;
+		typedef typename	allocator_type::reference		reference;
 		typedef typename	allocator_type::const_reference	const_reference;
 		typedef typename	allocator_type::pointer			pointer;
-		typedef typename	allocator_type::const_pointer		const_pointer;
+		typedef typename	allocator_type::const_pointer	const_pointer;
+
+		typedef ft::random_access_iterator<value_type>			iterator;
+		typedef ft::random_access_iterator<const value_type>	const_iterator;
+		typedef ft::reverse_iterator<iterator>					reverse_iterator;
+		typedef ft::reverse_iterator<const_iterator>			const_reverse_iterator;
 
 		explicit vector(const allocator_type& alloc = allocator_type()) // default 생성자
 		{
@@ -47,14 +52,15 @@ namespace ft
 			insert(begin(), count, value)
 		};
 
-		template<class input_iter>
-		vector(input_iter first, input_iter last, const allocator_type& alloc = allocator_type())
+		template<class InputIt>
+		vector(InputIt first, InputIt last, const allocator_type& alloc = allocator_type(),
+		 typename ft::enable_if<!ft::is_integral<InputIt>::value, InputIt>::type* = 0)
 		{
 			container_ = NULL;
 			alloc_ = alloc;
 			size_ = 0;
 			capacity_ = 0;
-			// fisrt ~ last까지 값 insert 해주기
+			insert(begin(), first, last);
 		};
 
 		vector (const vector &other) //복사생성자
@@ -175,9 +181,126 @@ namespace ft
 			return (container_[size() - 1]);
 		}
 
-		T* data(); // C++11??
-		const T* data() const;// C++11??
+		T* data()
+		{
+			return (container_);
+		}
+		const T* data() const
+		{
+			return (container_);
+		}
 
+		void clear()
+		{
+			while (size() > 0)
+				pop_back();
+		}
+
+		iterator begin()
+		{
+			return (iterator(container_));
+		}
+
+		const_iterator begin() const
+		{
+			return (const_iterator(container_));
+		}
+
+		iterator end()
+		{
+			return (iterator(container_ + size()));
+		}
+
+		const_iterator end() const
+		{
+			return (const_iterator(container_ + size()));
+		}
+
+		reverse_iterator rbegin()
+		{
+			return (reverse_iterator(end()));
+		}
+		const_reverse_iterator rbegin() const
+		{
+			return (const_reverse_iterator(end()));
+		}
+		reverse_iterator rend()
+		{
+			return (reverse_iterator(begin()));
+		}
+		const_reverse_iterator rend() const
+		{
+			return (const_reverse_iterator(begin()));
+		}
+
+		template <class InputIt>
+		void assign (InputIt first, InputIt last,
+		typename ft::enable_if<!ft::is_integral<InputIt>::value, InputIt>::type* = 0)
+		{
+			InputIt	size_check = first;
+			int		size;
+			clear();
+			while (size_check != last)
+			{
+				size_check++;
+				size++;
+			}
+			reserve(size);
+			insert(begin(), first, last);
+		}
+
+		void assign (size_type n, const value_type& val)
+		{
+			clear();
+			reserve(n);
+			insert(begin(), n, val);
+		}
+
+		void push_back (const value_type& val)
+		{
+			if (capacity_ < size_ + 1)
+			{
+				if (capacity() == 0)
+					reserve(1);
+				else
+					reserve(capacity_ * 2);
+			}
+			alloc_.construct(&container_[size_], val);
+			size_++;
+		}
+
+		void pop_back()
+		{
+			if (size() != 0)
+			{
+				alloc_.destroy(&container_[size_ - 1]);
+				size_--;
+			}
+		}
+
+		iterator insert (iterator position, const value_type& val)
+		{
+			size_type	idx = position - begin();
+			if (size_ + 1 > capacity_)
+			{
+				if (capacity_ == 0)
+					reserve(1);
+				else
+					reserve(capacity_ * 2);
+			}
+		}
+
+		void insert (iterator position, size_type n, const value_type& val)
+		{
+
+		}
+
+		template <class InputIt>
+		void insert (iterator position, InputIt first, InputIt last,
+		typename ft::enable_if<!ft::is_integral<InputIt>::value, InputIt>::type* = 0)
+		{
+
+		}
 
 		private:
 		value_type			*container_; // 저장공간의 타입
