@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   vector.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jaeyjeon <jaeyjeon@student.42seoul.kr>     +#+  +:+       +#+        */
+/*   By: jaeyjeon <@student.42seoul.kr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/14 16:46:37 by jaeyjeon          #+#    #+#             */
-/*   Updated: 2023/02/20 18:35:23 by jaeyjeon         ###   ########.fr       */
+/*   Updated: 2023/02/22 19:00:06 by jaeyjeon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -288,18 +288,81 @@ namespace ft
 				else
 					reserve(capacity_ * 2);
 			}
+			size_++;
+			if (idx < size_)
+			{
+				for(size_type i = size_ - 1 ; i > idx ; i--)
+				{
+					alloc_.construct(&container_[i], container_[i - 1]);
+					alloc_.destroy(&container_[i - 1]);
+				}
+			}
+			alloc_.construct(&container_[idx], val);
+			return (iterator(&container[idx]));
 		}
 
 		void insert (iterator position, size_type n, const value_type& val)
 		{
-
+			size_type	idx = position - begin();
+			if (size_ + n > capacity_)
+			{
+				if (capacity_ == 0)
+					reserve(n);
+				else
+				{
+					if (size_ * 2 < size_ + n)
+						reserve(capacity_ + n);
+					else
+						reserve(capacity_ * 2);
+				}
+			}
+			for(size_type i = n + size_ - 1 ; i > n + idx - 1; i--)
+			{
+				alloc_.construct(&container_[i], container_[i - n]);
+				alloc_.destroy(&container_[i - n]);
+			}
+			for(size_type i = idx ; i < idx + n ; i++)
+			{
+				alloc_.construct(&container_[i], val);
+				size_++;
+			}
 		}
 
 		template <class InputIt>
 		void insert (iterator position, InputIt first, InputIt last,
 		typename ft::enable_if<!ft::is_integral<InputIt>::value, InputIt>::type* = 0)
 		{
-
+			size_type	idx = position - begin();
+			size_type	n = 0;
+			InputIt		tmp = first;
+			while (tmp != last)
+			{
+				n++;
+				tmp++;
+			}
+			if (size_ + n > capacity_)
+			{
+				if (capacity_ == 0)
+					reserve(n);
+				else
+				{
+					if (size_ * 2 < size_ + n)
+						reserve(capacity_ + n);
+					else
+						reserve(capacity_ * 2);
+				}
+			}
+			for(size_type i = n + size_ - 1 ; i > n + idx - 1; i--)
+			{
+				alloc_.construct(&container_[i], container_[i - n]);
+				alloc_.destroy(&container_[i - n]);
+			}
+			for(size_type i = idx ; i < idx + n ; i++)
+			{
+				alloc_.construct(&container_[i], *first);
+				first++;
+				size_++;
+			}
 		}
 
 		private:
