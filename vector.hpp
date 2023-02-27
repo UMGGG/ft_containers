@@ -6,7 +6,7 @@
 /*   By: jaeyjeon <@student.42seoul.kr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/14 16:46:37 by jaeyjeon          #+#    #+#             */
-/*   Updated: 2023/02/22 19:00:06 by jaeyjeon         ###   ########.fr       */
+/*   Updated: 2023/02/27 15:51:47 by jaeyjeon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ namespace ft
 	{
 		public:
 		typedef	T				value_type; // T를 value_type으로 사용
-		typedef	Alloc			allocator_type; // Alloc를 allocator_type으로 사용
+		typedef	Alloc			allocator_type; // Alloc를 allocator_type으로 사용, 저장공간을 할당하거나 할당 취소해주는 객체
 		typedef std::size_t		size_type;
 
 		typedef typename	allocator_type::reference		reference;
@@ -365,12 +365,123 @@ namespace ft
 			}
 		}
 
+	iterator erase (iterator position)
+	{
+		size_type	idx = position - begin();
+		alloc_.destroy(&container_[0]);
+		size_--;
+		if (idx < size_)
+		{
+			for (size_type i = idx ; i < size_ ; i++)
+			{
+				alloc_.construct(&container_[i], container_[i + 1]);
+				alloc_.destroy(container_[i + 1]);
+			}
+		}
+		return (iterator(&container_[idx]));
+	}
+
+	iterator erase (iterator first, iterator last)
+	{
+		size_type	start = first - begin();
+		size_type	erase_size = 0;
+		if (fisrt == last)
+			return (iterator(first));
+		for (iterator iter = first ; iter != last ; iter++)
+		{
+			alloc_destroy(&(*iter));
+			size_--;
+			erase_size++;
+		}
+		if (start < size_)
+		{
+			for (size_type i = start ; i < size ; i++)
+			{
+				alloc_construct(&container_[i], container_[i + size]);
+				alloc_destroy(&container[i + size]);
+			}
+		}
+		return (iterator(container_[start]));
+	}
+
+	void swap(vector& other)
+	{
+		value_type *temp_con = other.container_;
+		size_type temp_size = other.size_;
+		size_type temp_capa = other.capacity_;
+
+		other.container_ = container_;
+		container_ = temp_con;
+
+		other.size = size_;
+		size_ = temp_size;
+
+		other.capacity_ = capacity_;
+		capacity_ = temp_capa;
+	}
+
+	allocator_type get_allocator() const
+	{
+		return (alloc_);
+	}
+
 		private:
 		value_type			*container_; // 저장공간의 타입
 		allocator_type		alloc_; // 저장공간
 		size_type			size_; // 벡터가 가지고있는 요소의 개수
 		size_type			capacity_; // 벡터에 현재 할당되어있는 저장공간의 크기
 	};
+
+	template< class T, class Alloc >
+	bool operator==( const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs )
+	{
+		if (lhs.size() != rhs.size())
+			return (false);
+		for (size_t i = 0 ; i < lhs.size() ; i++)
+		{
+			if (lhs[i] != rhs[i])
+				return (false);
+		}
+		return (true);
+	}
+
+	template< class T, class Alloc >
+	bool operator!=( const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs )
+	{
+		if (lhs.size() != rhs.size())
+			return (true);
+		for (size_t i = 0 ; i < lhs.size() ; i++)
+		{
+			if (lhs[i] != rhs[i])
+				return (true);
+		}
+		return (false);
+	}
+
+	template< class T, class Alloc >
+	bool operator<( const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs )
+	{
+		typename vector<T>::const_iterator	lhs_it = lhs.begin();
+		typename vector<T>::const_iterator	rhs_it = rhs.begin();
+	}
+
+	template< class T, class Alloc >
+	bool operator<=( const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs )
+	{
+
+	}
+
+	template< class T, class Alloc >
+	bool operator>( const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs )
+	{
+
+	}
+
+	template< class T, class Alloc >
+	bool operator>=( const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs )
+	{
+
+	}
 
 }
 
