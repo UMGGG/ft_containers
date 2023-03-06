@@ -6,7 +6,7 @@
 /*   By: jaeyjeon <@student.42seoul.kr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/14 16:46:37 by jaeyjeon          #+#    #+#             */
-/*   Updated: 2023/02/27 15:51:47 by jaeyjeon         ###   ########.fr       */
+/*   Updated: 2023/03/06 16:59:20 by jaeyjeon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -365,65 +365,65 @@ namespace ft
 			}
 		}
 
-	iterator erase (iterator position)
-	{
-		size_type	idx = position - begin();
-		alloc_.destroy(&container_[0]);
-		size_--;
-		if (idx < size_)
+		iterator erase (iterator position)
 		{
-			for (size_type i = idx ; i < size_ ; i++)
-			{
-				alloc_.construct(&container_[i], container_[i + 1]);
-				alloc_.destroy(container_[i + 1]);
-			}
-		}
-		return (iterator(&container_[idx]));
-	}
-
-	iterator erase (iterator first, iterator last)
-	{
-		size_type	start = first - begin();
-		size_type	erase_size = 0;
-		if (fisrt == last)
-			return (iterator(first));
-		for (iterator iter = first ; iter != last ; iter++)
-		{
-			alloc_destroy(&(*iter));
+			size_type	idx = position - begin();
+			alloc_.destroy(&container_[0]);
 			size_--;
-			erase_size++;
-		}
-		if (start < size_)
-		{
-			for (size_type i = start ; i < size ; i++)
+			if (idx < size_)
 			{
-				alloc_construct(&container_[i], container_[i + size]);
-				alloc_destroy(&container[i + size]);
+				for (size_type i = idx ; i < size_ ; i++)
+				{
+					alloc_.construct(&container_[i], container_[i + 1]);
+					alloc_.destroy(container_[i + 1]);
+				}
 			}
+			return (iterator(&container_[idx]));
 		}
-		return (iterator(container_[start]));
-	}
 
-	void swap(vector& other)
-	{
-		value_type *temp_con = other.container_;
-		size_type temp_size = other.size_;
-		size_type temp_capa = other.capacity_;
+		iterator erase (iterator first, iterator last)
+		{
+			size_type	start = first - begin();
+			size_type	erase_size = 0;
+			if (fisrt == last)
+				return (iterator(first));
+			for (iterator iter = first ; iter != last ; iter++)
+			{
+				alloc_destroy(&(*iter));
+				size_--;
+				erase_size++;
+			}
+			if (start < size_)
+			{
+				for (size_type i = start ; i < size ; i++)
+				{
+					alloc_construct(&container_[i], container_[i + size]);
+					alloc_destroy(&container[i + size]);
+				}
+			}
+			return (iterator(container_[start]));
+		}
 
-		other.container_ = container_;
-		container_ = temp_con;
+		void swap(vector& other)
+		{
+			value_type *temp_con = other.container_;
+			size_type temp_size = other.size_;
+			size_type temp_capa = other.capacity_;
 
-		other.size = size_;
-		size_ = temp_size;
+			other.container_ = container_;
+			container_ = temp_con;
 
-		other.capacity_ = capacity_;
-		capacity_ = temp_capa;
-	}
+			other.size = size_;
+			size_ = temp_size;
 
-	allocator_type get_allocator() const
-	{
-		return (alloc_);
-	}
+			other.capacity_ = capacity_;
+			capacity_ = temp_capa;
+		}
+
+		allocator_type get_allocator() const
+		{
+			return (alloc_);
+		}
 
 		private:
 		value_type			*container_; // 저장공간의 타입
@@ -463,26 +463,42 @@ namespace ft
 	{
 		typename vector<T>::const_iterator	lhs_it = lhs.begin();
 		typename vector<T>::const_iterator	rhs_it = rhs.begin();
+
+		while(lhs_it != lhs.end() && rhs_it != rhs.end())
+		{
+			if (*lhs_it < *rhs_it)
+				return (true);
+			else if (*lhs_it > *rhs_it)
+				return (false);
+			lhs_it++;
+			rhs_it++;
+		}
+		return (rhs_it != rhs.end());
 	}
 
 	template< class T, class Alloc >
 	bool operator<=( const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs )
 	{
-
+		return (!(rhs < lhs));
 	}
 
 	template< class T, class Alloc >
 	bool operator>( const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs )
 	{
-
+		return (rhs < lhs);
 	}
 
 	template< class T, class Alloc >
 	bool operator>=( const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs )
 	{
-
+		return (!(lhs < rhs));
 	}
 
+	template <class T, class Alloc>
+	void swap (vector<T,Alloc>& x, vector<T,Alloc>& y)
+	{
+		x.swap(y);
+	}
 }
 
 #endif
