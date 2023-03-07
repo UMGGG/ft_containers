@@ -6,7 +6,7 @@
 /*   By: jaeyjeon <@student.42seoul.kr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/14 16:46:37 by jaeyjeon          #+#    #+#             */
-/*   Updated: 2023/03/06 16:59:20 by jaeyjeon         ###   ########.fr       */
+/*   Updated: 2023/03/07 17:47:36 by jaeyjeon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 # define VECTOR_HPP
 
 # include <memory> // allocator
+
+# include "container_utils.hpp"
 
 namespace ft
 {
@@ -52,9 +54,8 @@ namespace ft
 			insert(begin(), count, value)
 		};
 
-		template<class InputIt>
-		vector(InputIt first, InputIt last, const allocator_type& alloc = allocator_type(),
-		 typename ft::enable_if<!ft::is_integral<InputIt>::value, InputIt>::type* = 0)
+		template<class InputIt, typename ft::enable_if<!ft::is_integral<InputIt>::value, InputIt>::type* = 0>
+		vector(InputIt first, InputIt last, const allocator_type& alloc = allocator_type())
 		{
 			container_ = NULL;
 			alloc_ = alloc;
@@ -233,9 +234,8 @@ namespace ft
 			return (const_reverse_iterator(begin()));
 		}
 
-		template <class InputIt>
-		void assign (InputIt first, InputIt last,
-		typename ft::enable_if<!ft::is_integral<InputIt>::value, InputIt>::type* = 0)
+		template <class InputIt, typename ft::enable_if<!ft::is_integral<InputIt>::value, InputIt>::type* = 0>
+		void assign (InputIt first, InputIt last) // InputIt가 integral이 아닐 시 호출되지않음
 		{
 			InputIt	size_check = first;
 			int		size;
@@ -328,9 +328,8 @@ namespace ft
 			}
 		}
 
-		template <class InputIt>
-		void insert (iterator position, InputIt first, InputIt last,
-		typename ft::enable_if<!ft::is_integral<InputIt>::value, InputIt>::type* = 0)
+		template <class InputIt, typename ft::enable_if<!ft::is_integral<InputIt>::value, InputIt>::type* = 0>
+		void insert (iterator position, InputIt first, InputIt last)
 		{
 			size_type	idx = position - begin();
 			size_type	n = 0;
